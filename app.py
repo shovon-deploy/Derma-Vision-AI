@@ -78,7 +78,7 @@ st.markdown(
     'and a Grad-CAM map of the regions that drove the prediction.</div>',
     unsafe_allow_html=True,
 )
-st.warning("**Not a medical device.** DermaVision AI is a research and teaching prototype trained on HAM10000. "
+st.warning("**Not a medical device.**" # DermaVision AI is a research and teaching prototype trained on HAM10000. "
            "It cannot diagnose skin cancer. See a dermatologist about any lesion that worries you.")
 
 if not MODEL_PATH.exists():
