@@ -6,7 +6,6 @@
 
 Upload a dermoscopy image and get a predicted lesion type, a confidence score, and a heatmap of *where the model looked*.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/al-shovon/Derma-Vision-AI/blob/main/DermaVision_Colab.ipynb)
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EfficientNet--B0-EE4C2C?logo=pytorch&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-web%20app-FF4B4B?logo=streamlit&logoColor=white)
@@ -14,13 +13,13 @@ Upload a dermoscopy image and get a predicted lesion type, a confidence score, a
 ![License: MIT](https://img.shields.io/badge/License-MIT-2E8B57)
 ![Status: research prototype](https://img.shields.io/badge/Status-research%20prototype-C77700)
 
-[Try it](#try-it) · [How it works](#how-it-works) · [Results](#results) · [Run locally](#run-it-on-your-computer) · [Train your own](#train-your-own-model) · [FAQ](#faq) · [Limitations](#limitations-and-responsible-use)
+[Try it](#try-it) · [How it works](#how-it-works) · [Results](#results) · [FAQ](#faq) · [Limitations](#limitations-and-responsible-use)
 
 </div>
 
-<!-- Once the app is deployed, add this under the badges (replace the URL):
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://YOUR-APP-NAME.streamlit.app)
--->
+
+### Live Deployment Link:  [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://derma-vision-ai.streamlit.app/)
+
 
 > [!WARNING]
 > **Not a medical device.** DermaVision AI is a research and learning project. It cannot diagnose skin cancer, and its output must never be used to decide whether to seek medical care. If a mole or skin spot worries you, see a dermatologist.
@@ -41,21 +40,11 @@ Give the app one dermoscopic image and it returns:
 | I want to… | Go here |
 |---|---|
 | run the app on my computer | [Run it on your computer](#run-it-on-your-computer) |
-| train the model myself, free, in the browser | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/al-shovon/Derma-Vision-AI/blob/main/DermaVision_Colab.ipynb) |
 | understand how it works | [How it works](#how-it-works) |
 | see how well it performs | [Results](#results) |
 | know what it cannot do | [Limitations and responsible use](#limitations-and-responsible-use) |
 
-The fastest start (needs Python 3.10 or newer):
 
-```bash
-git clone https://github.com/al-shovon/Derma-Vision-AI.git
-cd Derma-Vision-AI
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-Then open <http://localhost:8501>, pick one of the built-in sample images or upload your own dermoscopic image, and explore the result.
 
 <details>
 <summary><b>What you will see in the app</b></summary>
@@ -140,101 +129,7 @@ The model is evaluated **once**, on a held-out test split made of lesions it nev
 
 The exact numbers (accuracy, balanced accuracy, macro-F1, macro-AUC and per-class precision, recall and F1) are in [`models/metrics.json`](models/metrics.json). When you read them, look first at the recall of the three cancer-related classes (`mel`, `bcc`, `akiec`) and at how often melanoma is mistaken for a common mole.
 
-## Run it on your computer
 
-<details open>
-<summary><b>Step by step</b></summary>
-
-1. Install [Python 3.10-3.12](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads).
-2. Get the code and create a virtual environment:
-
-   ```bash
-   git clone https://github.com/al-shovon/Derma-Vision-AI.git
-   cd Derma-Vision-AI
-   python -m venv .venv
-   # Windows:      .venv\Scripts\activate
-   # macOS/Linux:  source .venv/bin/activate
-   ```
-
-3. Install the dependencies. The first line is optional (Windows/Linux): it installs the smaller CPU-only build of PyTorch.
-
-   ```bash
-   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-   pip install -r requirements.txt
-   ```
-
-4. Start the app:
-
-   ```bash
-   streamlit run app.py
-   ```
-
-5. Open <http://localhost:8501>. Press `Ctrl+C` in the terminal to stop it.
-
-</details>
-
-<details>
-<summary><b>Something went wrong?</b></summary>
-
-- **`ModuleNotFoundError`**: the virtual environment is not activated, or the install did not finish. Activate it and run the install again.
-- **"Model file not found"**: the app expects `models/dermavision_best.pt` next to `app.py`. Train a model (next section) or restore that file.
-- **A `torch.classes` message in the terminal**: harmless. Start the app with `streamlit run app.py --server.fileWatcherType none` to hide it.
-
-</details>
-
-## Train your own model
-
-**One click, free GPU:**
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/al-shovon/Derma-Vision-AI/blob/main/DermaVision_Colab.ipynb)
-
-Open the notebook, choose **Runtime > Change runtime type > T4 GPU**, and run the cells from top to bottom (about 30-60 minutes). It downloads this repository and the HAM10000 dataset, explores the data, runs a 1-epoch smoke test, trains for 20 epochs, and saves the results to your Google Drive.
-
-> [!NOTE]
-> Free Colab does not guarantee a GPU or a session length, so keep the tab open while training. `train.py` cannot resume an interrupted run; if the session dies, start the training cell again.
-
-<details>
-<summary><b>Run training from the command line</b></summary>
-
-Download HAM10000 (see [Acknowledgements](#acknowledgements-and-citations)) so that `HAM10000_metadata.csv` and the `.jpg` images are somewhere under one folder, then:
-
-```bash
-python train.py --data_dir /path/to/HAM10000 --out_dir models --epochs 20
-```
-
-A quick check that everything runs, even without a GPU:
-
-```bash
-python train.py --data_dir /path/to/HAM10000 --epochs 1 --img_size 64 --batch_size 8 --workers 0 --no_pretrained
-```
-
-| Option | Default | Meaning |
-|---|---|---|
-| `--data_dir` | required | Folder containing the metadata CSV and the images (subfolders are searched) |
-| `--out_dir` | `models` | Where weights, metrics and plots are written |
-| `--epochs` | 20 | Maximum number of epochs |
-| `--batch_size` | 32 | Images per training step |
-| `--lr` | 3e-4 | Learning rate |
-| `--img_size` | 224 | Input resolution |
-| `--patience` | 6 | Early-stopping patience in epochs |
-| `--workers` | 2 | Data-loading processes |
-| `--seed` | 42 | Random seed |
-| `--no_pretrained` | off | Skip the ImageNet weights (offline debugging only) |
-
-Outputs in `--out_dir`: `dermavision_best.pt`, `metrics.json`, `history.json`, `confusion_matrix.png`, `training_curves.png` and `samples/` (a few held-out test images the app offers as demos).
-
-</details>
-
-<details>
-<summary><b>Deploy your own copy</b></summary>
-
-[Streamlit Community Cloud](https://streamlit.io/cloud) can host the app for free; CPU is enough.
-
-1. Fork this repository.
-2. Add `--extra-index-url https://download.pytorch.org/whl/cpu` as the first line of `requirements.txt` to get the small CPU-only PyTorch, and pin the versions you tested.
-3. Sign in at [share.streamlit.io](https://share.streamlit.io) with GitHub, choose **New app**, select your fork and `app.py`, and deploy.
-
-</details>
 
 ## Project structure
 
